@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "lib": [ "esnext", "dom", "dom.iterable" ],
+    "moduleResolution": "node",
+    "paths": {
+      "@/*": [ "./src/*" ]
+    },
+    "target": "es6"
+  }  
+}

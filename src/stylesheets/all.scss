@@ -1,0 +1,14 @@
+@use 'bootstrap/scss/bootstrap';
+@use 'bootstrap-icons/font/bootstrap-icons';
+@use '@fortawesome/fontawesome-free/scss/fontawesome';
+@use '@fortawesome/fontawesome-free/scss/solid';
+@use '@fortawesome/fontawesome-free/scss/regular';
+@use '@fortawesome/fontawesome-free/scss/brands';
+
+/* typical tablet screen resolution */
+@media only screen and (max-width : 834px) {
+@import 'App.css';
+}
+@media only screen and (min-width : 835px) {
+@import 'index.css';
+}
