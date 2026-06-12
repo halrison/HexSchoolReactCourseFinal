@@ -65,13 +65,14 @@ function ProductModal ({getProducts, product, pushMessages, ref}) {
     }
     const saveProduct = () => {
         http({
-            url: tempProduct.id ? `/v2/api/${process.env.REACT_APP_PATH}/admin/product/${tempProduct.id}` : `/v2/api/${process.env.REACT_APP_PATH}/admin/product/`,
+            url: `/api/${process.env.REACT_APP_PATH}/admin/product/${tempProduct.id ? tempProduct.id:''}`,
             method: tempProduct.id ? 'put' : 'post',
             data: {
                 data: {
                     ...getValues(),
                     imageUrl: tempProduct.imageUrl,
-                    imagesUrl: tempProduct.imagesUrl
+                    imagesUrl: tempProduct.imagesUrl,
+                    is_enabled:getValues('is_enabled')?1:0
                 }
             }
         }).then(response => {
@@ -105,7 +106,7 @@ function ProductModal ({getProducts, product, pushMessages, ref}) {
                 <Modal.Header title={product.id ? '編輯商品' : '新增商品'} />
                 <Modal.Body>
                     <div className="row">
-                        <div className="col-sm-4">
+                        <div className="col-xl-4">
                             <div className="mb-3">
                                 <label htmlFor="image" className="form-label">輸入圖片網址</label>
                                 <br />
@@ -153,7 +154,7 @@ function ProductModal ({getProducts, product, pushMessages, ref}) {
                                 })}
                             </div>
                         </div>
-                        <div className="col-sm-8">
+                        <div className="col-xl-8">
                             <div className="mb-3">
                                 <label htmlFor="title" className="form-label">標題</label>
                                 <input type="text" id="title" placeholder="請輸入標題"
@@ -230,19 +231,19 @@ function ProductModal ({getProducts, product, pushMessages, ref}) {
                             <div className="mb-3">
                                 <label htmlFor="description" className="form-label">產品描述</label>
                                 <textarea className="form-control" id="description" placeholder="請輸入產品描述"
-                                    defaultValue={tempProduct.content}
+                                    defaultValue={tempProduct.description}
                                     {...register('description')} />
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="content" className="form-label">說明內容</label>
                                 < textarea className="form-control" id="content" placeholder="請輸入產品說明內容"
-                                    defaultValue={tempProduct.description}
+                                    defaultValue={tempProduct.content}
                                     {...register('content')} />
                             </div>
                             <div className="mb-3">
                                 <div className="form-check">
                                     <input className="form-check-input" type="checkbox" id="is_enabled"
-                                        defaultChecked={!!tempProduct.is_enabled} value={tempProduct.is_enabled}
+                                        defaultChecked={!!tempProduct.is_enabled} defaultValue={tempProduct.is_enabled}
                                         {...register('is_enabled')} />
                                     <label className="form-check-label" htmlFor="is_enabled">
                                         是否啟用
@@ -263,7 +264,7 @@ function ProductModal ({getProducts, product, pushMessages, ref}) {
 function DeleteModal ({getProducts, product, pushMessages, ref}) {
     const deleteProduct = id => {
         http({
-            url: `/v2/api/${process.env.REACT_APP_PATH}/admin/product/${id}`,
+            url: `/api/${process.env.REACT_APP_PATH}/admin/product/${id}`,
             method: 'delete'
         }).then(response => {
             if (response.data.success) {
@@ -316,7 +317,7 @@ function Product () {
         page => {
             setLoading(true)
             http({
-                url: `/v2/api/${process.env.REACT_APP_PATH}/admin/products`,
+                url: `/api/${process.env.REACT_APP_PATH}/admin/products`,
                 params: {page}
             }).then(response => {
                 if (response.data.success) {
@@ -356,7 +357,7 @@ function Product () {
                 </div>
                 <div className="table-responsive-sm overflow-x-hidden mt-2">
                     <table className="table table-striped">
-                        <thead className="sticky-top">
+                        <thead>
                             <tr className="row mx-0">
                                 <th className="col-4 col-lg-2">分類</th>
                                 <th className="col-8 col-lg-4">名稱</th>

@@ -15,67 +15,69 @@ const Coupon = lazy(() => import('../pages/back/Coupon'))
 const OrderList = lazy(() => import('../pages/front/OrderList'))
 const OrderManage = lazy(() => import('../pages/back/Order'))
 const Article = lazy(() => import('../pages/back/Article'))
-const router = createHashRouter([
-    {
-        path: '/',
-        element: <Front />,
-        children: [
-            {
-                index: true,
-                element: <Home />
-            },
-            {
-                path: 'login',
-                element: <Login />
-            },
-            {
-                path: 'products',
-                element: <ProductList />
-            },
-            {
-                path: 'product',
-                element: <ProductDetail />
-            },
-            {
-                path: 'articles',
-                element: <ArticleList />
-            },
-            {
-                path: 'article',
-                element: <ArticleDetail />
-            },
-            {
-                path: 'cart',
-                element: <Cart />
-            },
-            {
-                path: 'orders',
-                element: <OrderList />
-            }
-        ],
-    },
-    {
-        path: '/admin',
-        element: <Back />,
-        middleware: [guard],
-        children: [
-            {
-                path: 'products',
-                element: <Product />
-            },
-            {
-                path: 'coupons',
-                element: <Coupon />
-            },
-            {
-                path: 'orders',
-                element: <OrderManage />
-            },
-            {
-                path: 'articles',
-                element: <Article />
-            },
-        ],
-    },
-])
+const router = createHashRouter(
+    [
+        {
+            path: '/',
+            element: <Front />,
+            children: [
+                {
+                    index: true,
+                    element: <Home />
+                },
+                {
+                    path: 'login',
+                    element: <Login />
+                },
+                {
+                    path: 'products',
+                    element: <ProductList />
+                },
+                {
+                    path: 'product',
+                    element: <ProductDetail />
+                },
+                {
+                    path: 'articles',
+                    element: <ArticleList />
+                },
+                {
+                    path: 'article',
+                    element: <ArticleDetail />
+                },
+                {
+                    path: 'cart',
+                    element: <Cart />
+                },
+                {
+                    path: 'orders',
+                    element: <OrderList />
+                }
+            ],
+        },
+        {
+            path: '/admin',
+            element: <Back />,
+            middleware: [guard],
+            children: [
+                {
+                    path: 'products',
+                    element: <Product />
+                },
+                {
+                    path: 'coupons',
+                    element: <Coupon />
+                },
+                {
+                    path: 'orders',
+                    element: <OrderManage />
+                },
+                {
+                    path: 'articles',
+                    element: <Article />
+                },
+            ],
+        },
+    ]
+)
 export default router

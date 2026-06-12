@@ -20,6 +20,7 @@ const initOrder = {
     "num": 0
 }
 function OrderModal ({getOrders, order, pushMessages, ref}) {
+    const [isLoading, setIsLoading] = useState(false)
     const [tempOrder, setTempOrder] = useState(initOrder)
     const {formState: {errors}, register, getValues, handleSubmit} = useForm({
         defaultValues: initOrder,
@@ -40,7 +41,7 @@ function OrderModal ({getOrders, order, pushMessages, ref}) {
     )
     const saveOrder = () => {
         http({
-            url: `/v2/api/${process.env.REACT_APP_PATH}/admin/order/${tempOrder.id}`,
+            url: `/api/${process.env.REACT_APP_PATH}/admin/order/${tempOrder.id}`,
             method: 'put',
             data: {data: getValues()}
         }).then(response => {
@@ -52,35 +53,38 @@ function OrderModal ({getOrders, order, pushMessages, ref}) {
                 })
                 getOrders(1)
             } else pushMessages({
-                type: 'success',
-                title: '變更訂單成功',
+                type: 'warning',
+                title: '變更訂單失敗',
                 content: response.data.message
             })
         }).catch(error =>
             pushMessages({
-                type: 'success',
-                title: '變更訂單成功',
+                type: 'danger',
+                title: '變更訂單失敗',
                 content: error.response.data.message
             })
         )
     }
     useEffect(
         () => {
-            http(`/v2/api/${process.env.REACT_APP_PATH}/order/${order.id}`)
-                .then(response => {
-                    if (response.data.success) setTempOrder(response.data.order)
-                    else pushMessages({
-                        type: 'warning',
-                        title: '取得訂單資訊失敗',
-                        content: response.data.messages
-                    })
-                }).catch(error =>
-                    pushMessages({
-                        type: 'error',
-                        title: '取得訂單資訊失敗',
-                        content: error.response.data.messages
-                    })
-                )
+            if (order.id) {
+                setIsLoading(true)
+                http(`/api/${process.env.REACT_APP_PATH}/order/${order.id}`)
+                    .then(response => {                        
+                        if (response.data.success) setTempOrder(response.data.order)
+                        else pushMessages({
+                            type: 'warning',
+                            title: '取得訂單資訊失敗',
+                            content: response.data.messages
+                        })
+                    }).catch(error =>
+                        pushMessages({
+                            type: 'error',
+                            title: '取得訂單資訊失敗',
+                            content: error.response.data.messages
+                        })
+                    ).finally(() => {setIsLoading(false)})
+            }
         },
         [order, pushMessages]
     )
@@ -88,7 +92,8 @@ function OrderModal ({getOrders, order, pushMessages, ref}) {
         <Modal ref={ref} size='xl'>
             <Modal.Header title={`訂單編號 : ${tempOrder?.id}`} />
             <Modal.Body>
-                <div className="table">
+                {isLoading ? <Loading loading={isLoading} /> :
+                    <div className="table">
                     <section className="container-md">
                         <p className="row">
                             <span className="col-6 col-sm">建立日期</span>
@@ -97,6 +102,7 @@ function OrderModal ({getOrders, order, pushMessages, ref}) {
                             <span className="col-6 col-sm">{tempOrder?.is_paid ? transDate(tempOrder.paid_date * 1000) : '等待付款中'}</span>
                         </p>
                     </section>
+                    <hr />
                     <section className="container-md">
                         <p className="row">
                             <span className="col-sm-6">商品名稱</span>
@@ -115,7 +121,6 @@ function OrderModal ({getOrders, order, pushMessages, ref}) {
                                 <span className="col-4 col-sm-2 text-end mt-1">{currency(product.total)}</span>
                             </p>
                         )}
-
                         <p className="row border-top border-danger">
                             {products.some(product => product.coupon) ?
                                 <>
@@ -143,9 +148,9 @@ function OrderModal ({getOrders, order, pushMessages, ref}) {
                                     className={`form-control w-100 ${errors?.address && 'is-invalid'}`}
                                     defaultValue={tempOrder?.user?.address}
                                     {...register(
-                                        'user.address', {
-                                        required: '必填欄位'
-                                    })} />
+                                        'user.address',
+                                        {required: '必填欄位'}
+                                    )} />
                             </span>
                             <span className="invalid-feedback" name="address">{errors.address?.message}</span>
                         </p>
@@ -156,11 +161,24 @@ function OrderModal ({getOrders, order, pushMessages, ref}) {
                                     className={`form-control w-100 ${errors?.email && 'is-invalid'}`}
                                     defaultValue={tempOrder?.user?.email}
                                     {...register(
-                                        'user.email', {
-                                        required: '必填欄位'
-                                    })} />
+                                        'user.email',
+                                        {required: '必填欄位'}
+                                    )} />
                             </span>
                             <span className="invalid-feedback" name="email">{errors.email?.message}</span>
+                        </p>
+                        <p className="row">
+                            <span className="col-sm-3">留言</span>
+                            <span className="col-sm-9">
+                                <textarea
+                                    className={`form-control w-100 ${errors?.message && 'is-invalid'}`}
+                                    defaultValue={tempOrder?.message}
+                                    {...register(
+                                        'message',
+                                        {required: '必填欄位'}
+                                    )} />
+                            </span>
+                            <span className="invalid-feedback" name="message">{errors.message?.message}</span>
                         </p>
                         <p className="row">
                             <span className="col-3 col-lg">姓名</span>
@@ -169,9 +187,9 @@ function OrderModal ({getOrders, order, pushMessages, ref}) {
                                     className={`form-control w-100 ${errors?.name && 'is-invalid'}`}
                                     defaultValue={tempOrder?.user?.name}
                                     {...register(
-                                        'user.name', {
-                                        required: '必填欄位'
-                                    })} />
+                                        'user.name',
+                                        {required: '必填欄位'}
+                                    )} />
                             </span>
                             <span className="invalid-feedback" name="name">{errors.name?.message}</span>
                             <span className="col-3 col-lg">電話</span>
@@ -180,14 +198,14 @@ function OrderModal ({getOrders, order, pushMessages, ref}) {
                                     className={`form-control w-100 ${errors?.tel && 'is-invalid'}`}
                                     defaultValue={tempOrder?.user?.tel}
                                     {...register(
-                                        'user.tel', {
-                                        required: '必填欄位'
-                                    })} />
+                                        'user.tel',
+                                        {required: '必填欄位'}
+                                    )} />
                             </span>
                             <span className="invalid-feedback" name="tel">{errors.tel?.message}</span>
                         </p>
                     </section>
-                </div>
+                </div>}
             </Modal.Body>
             <Modal.Footer>
                 <>
@@ -201,7 +219,7 @@ function OrderModal ({getOrders, order, pushMessages, ref}) {
 function DeleteModal ({getOrders, order, pushMessages, ref}) {
     const deleteOrder = () => {
         http({
-            url: order.id ? `/v2/api/${process.env.REACT_APP_PATH}/admin/order/${order.id}` : `/v2/api/${process.env.REACT_APP_PATH}/admin/order/all`,
+            url: `/api/${process.env.REACT_APP_PATH}/admin/order/${order.id ? order.id : 'all'}`,
             method: 'delete'
         }).then(response => {
             if (response.data.success) {
@@ -252,7 +270,7 @@ function Order () {
         page => {
             setIsLoading(true)
             http({
-                url: `/v2/api/${process.env.REACT_APP_PATH}/admin/orders`,
+                url: `/api/${process.env.REACT_APP_PATH}/admin/orders`,
                 params: {page}
             }).then(response => {
                 if (response.data.success) {
@@ -276,9 +294,7 @@ function Order () {
         [pushMessages]
     )
     useEffect(
-        () => {
-            getOrders(1)
-        },
+        () => {getOrders(1)},
         [getOrders]
     )
     return isLoading ?
@@ -297,42 +313,42 @@ function Order () {
                 </div>
                 <div className="table-responsive-sm overflow-x-hidden mt-2">
                     <table className="table table-striped">
-                        <thead className="sticky-top">
+                        <thead>
                             <tr className="row mx-0">
-                                <th className="col-sm-1 col-lg-4">
-                                    <span className="d-block d-md-none d-lg-block">訂單編號</span>
-                                    <span className="d-none d-md-block d-lg-none">#</span>
+                                <th className="col-8 col-sm-1 col-xl-4">
+                                    <span className="d-block d-sm-none d-xl-block">訂單編號</span>
+                                    <span className="d-none d-sm-block d-xl-none">#</span>
                                 </th>
-                                <th className="col-6 col-sm-3 col-lg-2">建立日期</th>
-                                <th className="col-6 col-sm-3 col-lg-2">付款日期</th>
-                                <th className="col-3 col-sm-2 col-lg-2 text-lg-end">總金額</th>
-                                <th className="col-9 col-sm-3 col-lg-2 text-center">動作</th>
+                                <th className="col-4 col-sm-2 text-end">總金額</th>
+                                <th className="col-6 col-sm-3 col-xl-2">建立日期</th>
+                                <th className="col-6 col-sm-3 col-xl-2">付款日期</th>
+                                <th className="col-sm-3 col-xl-2 text-center">動作</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {orders.map(order => (
+                            {orders.map(order =>
                                 <tr key={order.num} className="row mx-0">
-                                    <td className="col-sm-1 col-lg-4">
-                                        <span className="d-block d-md-none d-lg-block">{order.id}</span>
-                                        <span className="d-none d-md-block d-lg-none">{order.num}</span>
+                                    <td className="col-8 col-sm-1 col-xl-4">
+                                        <span className="d-block d-sm-none d-xl-block">{order.id}</span>
+                                        <span className="d-none d-sm-block d-xl-none">{order.num}</span>
                                     </td>
-                                    <td className="col-6 col-sm-3 col-lg-2">{transDate(order.create_at * 1000)}</td>
-                                    <td className="col-6 col-sm-3 col-lg-2">{order.is_paid ? transDate(order.paid_date * 1000) : '等待付款中'}</td>
-                                    <td className="col-3 col-sm-2 col-lg-2 text-lg-end">{currency(order.total)}</td>
-                                    <td className="col-9 col-sm-3 col-lg-2">
+                                    <td className="col-4 col-sm-2  text-end">{currency(order.total)}</td>
+                                    <td className="col-6 col-sm-3 col-xl-2">{transDate(order.create_at * 1000)}</td>
+                                    <td className="col-6 col-sm-3 col-xl-2">{order.is_paid ? transDate(order.paid_date * 1000) : '等待付款中'}</td>
+                                    <td className="col-sm-3 col-xl-2">
                                         <div className="btn-group btn-group-sm w-100" role="group" aria-label="Basic example">
                                             <button className="btn btn-outline-warning" onClick={() => openOrderModal('edit', order.id)}>
                                                 <i className="bi bi-pencil-square"></i>
-                                                編輯
+                                                <span className="ms-1 d-inline-block d-sm-none d-md-inline-block">編輯</span>
                                             </button>
                                             <button className="btn btn-outline-danger" onClick={() => openOrderModal('remove', order.id)}>
                                                 <i className="bi bi-x-lg"></i>
-                                                移除
+                                                <span className="ms-1 d-inline-block d-sm-none d-md-inline-block">移除</span>
                                             </button>
                                         </div>
                                     </td>
                                 </tr>
-                            ))}
+                            )}
                         </tbody>
                     </table>
                 </div>

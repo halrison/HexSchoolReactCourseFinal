@@ -86,12 +86,13 @@ function ArticleModal ({article, getArticles, pushMessages, ref}) {
     }
     const saveArticle = () => {
         http({
-            url: tempArticle.id ? `/v2/api/${process.env.REACT_APP_PATH}/admin/article/${tempArticle.id}` : `/v2/api/${process.env.REACT_APP_PATH}/admin/article`,
+            url: `/api/${process.env.REACT_APP_PATH}/admin/article/${tempArticle.id ? tempArticle.id:''}`,
             method: tempArticle.id ? 'put' : 'post',
             data: {
                 data: {
                     ...getValues(),
-                    create_at: Date.parse(getValues('create_at'))
+                    create_at: Date.parse(getValues('create_at')),
+                    isPublic: Boolean(getValues('isPublic'))
                 }
             }
         }).then(response => {
@@ -126,7 +127,7 @@ function ArticleModal ({article, getArticles, pushMessages, ref}) {
         () => {
             if (article.id) {
                 setIsLoading(true)
-                http(`/v2/api/${process.env.REACT_APP_PATH}/admin/article/${article.id}`)
+                http(`/api/${process.env.REACT_APP_PATH}/admin/article/${article.id}`)
                     .then(response => {
                         if (response.data.success) setTempArticle({
                             ...response.data.article,
@@ -164,7 +165,7 @@ function ArticleModal ({article, getArticles, pushMessages, ref}) {
     )
     return (
         <form onReset={() => {ref.current.hide()}} onSubmit={handleSubmit(saveArticle)}>
-            <Modal ref={ref} size='xl'>
+            <Modal ref={ref} size='lg'>
                 <Modal.Header title={article.id ? '編輯文章' : '新增文章'} />
                 <Modal.Body>
                     {isLoading ? <Loading loading={isLoading} /> :
@@ -291,7 +292,7 @@ function ArticleModal ({article, getArticles, pushMessages, ref}) {
                                 <div className="col-9">
                                     <input className="form-check-input" id="public" type="checkbox"
                                         defaultChecked={tempArticle.isPublic}
-                                        value={tempArticle.isPublic}
+                                        defaultValue={tempArticle.isPublic}
                                         {...register('isPublic')} />
                                     <p name="isPublic" className="invalid-feedback">{errors.isPublic?.message}</p>
                                 </div>
@@ -330,7 +331,7 @@ function ArticleModal ({article, getArticles, pushMessages, ref}) {
 function DeleteModal ({article, getArticles, pushMessages, ref}) {
     const deleteArticle = id => {
         http({
-            url: `/v2/api/${process.env.REACT_APP_PATH}/admin/article/${id}`,
+            url: `/api/${process.env.REACT_APP_PATH}/admin/article/${id}`,
             method: 'delete'
         }).then(response => {
             if (response.data.success) {
@@ -382,7 +383,7 @@ function Article () {
         page => {
             setIsLoading(true)
             http({
-                url: `/v2/api/${process.env.REACT_APP_PATH}/admin/articles`,
+                url: `/api/${process.env.REACT_APP_PATH}/admin/articles`,
                 params: {page}
             }).then(response => {
                 if (response.data.success) {
@@ -421,7 +422,7 @@ function Article () {
                 </div>
                 <div className="table-responsive-sm overflow-x-hidden mt-2">
                     <table className="table table-striped">
-                        <thead className="sticky-top">
+                        <thead>
                             <tr className="row mx-0">
                                 <th className="col-6 col-sm-8 col-lg-4">標題</th>
                                 <th className="col-6 col-sm-4 col-lg-2">作者</th>
@@ -436,7 +437,11 @@ function Article () {
                                     <td className="col-6 col-sm-8 col-lg-4">{article.title}</td>
                                     <td className="col-6 col-sm-4 col-lg-2">{article.author}</td>
                                     <td className="col-6 col-sm-4 col-lg-2">{transDate(article.create_at)}</td>
-                                    <td className="col-6 col-sm-2 col-lg-1">{article.isPublic ? '是' : '否'}</td>
+                                    <td className="col-6 col-sm-2 col-lg-1">
+                                        <div className={article.isPublic ? 'text-success' : 'text-danger'}>
+                                            {article.isPublic ? '是' : '否'}
+                                        </div>
+                                    </td>
                                     <td className="col-sm-6 col-lg-3">
                                         <div className="btn-group btn-group-sm w-100" role="group" aria-label="Basic example">
                                             <button className="btn btn-outline-warning" onClick={() => openArticleModal('edit', article.id)}>

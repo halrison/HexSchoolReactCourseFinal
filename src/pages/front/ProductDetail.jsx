@@ -6,15 +6,15 @@ import Loading from "../../components/Loading"
 import Carousel from "../../components/Carousel"
 import Card from "../../components/Card"
 import MySwiper from "../../components/Swiper"
-function ImageCarousel ({product}) {    
+function ImageCarousel ({product}) {
     const carousel = useRef(null)
     return (
         <Carousel ref={carousel}>
-                        {Array.from(product.imagesUrl ? [product.imageUrl, ...product.imagesUrl] : [product.imageUrl]).map((image, index) => (
-                            <div className={`ratio ratio-1x1 carousel-item ${index === 0 && 'active'}`} key={index}>
-                                <img className="d-block img-fluid" src={image} />
-                            </div>)
-                        )}
+            {Array.from(product.imagesUrl ? [product.imageUrl, ...product.imagesUrl] : [product.imageUrl]).map((image, index) => (
+                <div className={`ratio ratio-1x1 carousel-item ${index === 0 && 'active'}`} key={index}>
+                    <img className="d-block img-fluid" src={image} />
+                </div>)
+            )}
         </Carousel>
     )
 }
@@ -23,35 +23,35 @@ function ProductSwiper ({products}) {
         <MySwiper>
             {products.map(product =>
                 <Card
-                        key={product.id}
-                        image={{
-                            url: product.imageUrl,
-                            alt: product.title
-                        }}
-                        slot={{
-                            header: (
-                                <div className="card-header">
-                                    <NavLink className="text-decoration-none" to={`/product?id=${product.id}`}>
-                                        <h6 className="text-center">{product.title}</h6>
-                                    </NavLink>
-                                </div>),
-                            body: (
-                                <div className="card-body">
-                                    <div className="card-text" >
-                                        {product.origin_price === product.price ?
-                                            <div className="text-center">台幣{product.price}元</div>
-                                            : <>
-                                                <span className="float-start">原價{product.origin_price}元</span>
-                                                <span className="float-end">特價{product.price}元</span>
-                                            </>
-                                        }
-                                    </div>
-                                </div>),
-                            footer: (
-                                <div className="card-footer">
-                                    <div className="text-center">剩餘{product.num}{product.unit}</div>
-                                </div>)
-                        }} />
+                    key={product.id}
+                    image={{
+                        url: product.imageUrl,
+                        alt: product.title
+                    }}
+                    slot={{
+                        header: (
+                            <div className="card-header">
+                                <NavLink className="text-decoration-none" to={`/product?id=${product.id}`}>
+                                    <h6 className="text-center">{product.title}</h6>
+                                </NavLink>
+                            </div>),
+                        body: (
+                            <div className="card-body">
+                                <div className="card-text" >
+                                    {product.origin_price === product.price ?
+                                        <div className="text-center">台幣{product.price}元</div>
+                                        : <>
+                                            <span className="float-start">原價{product.origin_price}元</span>
+                                            <span className="float-end">特價{product.price}元</span>
+                                        </>
+                                    }
+                                </div>
+                            </div>),
+                        footer: (
+                            <div className="card-footer">
+                                <div className="text-center">剩餘{product.num}{product.unit}</div>
+                            </div>)
+                    }} />
             )}
         </MySwiper>
     )
@@ -72,8 +72,8 @@ function ProductDetail () {
     )
     const favoriteList = localStorage.getItem("favorite") ? JSON.parse(localStorage.getItem("favorite")) : []
     const addToCart = () => {
-        http({
-            url: `/v2/api/${process.env.REACT_APP_PATH}/cart`,
+        if(quantity>0)http({
+            url: `/api/${process.env.REACT_APP_PATH}/cart`,
             method: "post",
             data: {
                 data: {
@@ -122,7 +122,7 @@ function ProductDetail () {
     useEffect(
         () => {
             setIsLoading(true)
-            http(`/v2/api/${process.env.REACT_APP_PATH}/product/${id}`)
+            http(`/api/${process.env.REACT_APP_PATH}/product/${id}`)
                 .then(response => {
                     if (response.data.success) setProduct(response.data.product)
                     else pushMessages({
@@ -141,7 +141,7 @@ function ProductDetail () {
     )
     useLayoutEffect(
         () => {
-            http(`/v2/api/${process.env.REACT_APP_PATH}/products/all`)
+            http(`/api/${process.env.REACT_APP_PATH}/products/all`)
                 .then(response => {
                     if (response.data.success) setProducts(response.data.products)
                     else pushMessages({
@@ -162,7 +162,7 @@ function ProductDetail () {
         <div className="container mt-1">
             <div className="row justify-content-center">
                 <figure className="col figure">
-                    <ImageCarousel product={product}/>
+                    <ImageCarousel product={product} />
                 </figure>
                 <div className="col">
                     <nav className="row mt-1" aria-label="breadcrumb">
@@ -198,14 +198,14 @@ function ProductDetail () {
                         <div className="col-12 col-md-6">
                             <div className="input-group my-3 bg-light rounded">
                                 <div className="input-group-prepend">
-                                    <button className="btn btn-outline-dark border-0 py-2" type="button" onClick={() => setQuantity(quantity - 1)} disabled={quantity < 1}>
+                                    <button className="btn btn-outline-dark border-0 py-2" type="button" onClick={() => setQuantity(quantity - 1)} disabled={quantity < 2}>
                                         <i className="bi bi-dash"></i>
                                     </button>
                                 </div>
                                 <input
                                     aria-label="Example text with button addon" aria-describedby="button-addon1"
                                     className="form-control border-0 text-center my-auto shadow-none bg-light"
-                                     readOnly type="number" value={quantity} />
+                                    readOnly type="number" value={quantity} />
                                 <div className="input-group-append">
                                     <button className="btn btn-outline-dark border-0 py-2" type="button" onClick={() => setQuantity(quantity + 1)}>
                                         <i className="bi-plus bi"></i>

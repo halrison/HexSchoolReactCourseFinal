@@ -1,7 +1,8 @@
-import {useCallback, useState} from 'react';
+import {useCallback, useState, Suspense} from 'react';
 import {RouterProvider} from 'react-router/dom';
 import router from './routes';
 import MessageProvider from './contexts/useToast';
+import Loading from './components/Loading';
 function App () {
     const pushMessages = useCallback(
         message => {
@@ -17,7 +18,9 @@ function App () {
     return (
         <div className="app">
             <MessageProvider value={{messages, pushMessages}}>
-                <RouterProvider router={router} />
+                <Suspense fallback={<Loading loading={true} />}>
+                    <RouterProvider router={router} />
+                </Suspense>
             </MessageProvider>
         </div>
     );

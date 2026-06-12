@@ -6,10 +6,11 @@ import MessageContext from "../../contexts/useToast"
 import Modal from "../../components/Modal"
 import Loading from "../../components/Loading"
 import {useNavigate} from "react-router";
+import {Link} from "react-router";
 function RemoveModal ({cart, ref, getCarts,pushMessages}) {
     const removeCart = () => {
         http({
-            url: cart.id ? `/v2/api/${process.env.REACT_APP_PATH}/cart/${cart.id}` : `/v2/api/${process.env.REACT_APP_PATH}/carts`,
+            url:  `/api/${process.env.REACT_APP_PATH}/${cart.id ?'cart/'+cart.id:'carts'}`,
             method: 'delete'
         }).then(response => {
             if (response.data.success) {
@@ -45,7 +46,7 @@ function Cart () {
     const [isLoading, setIsLoading] = useState(false)
     const addOrder = () => {
         http({
-            url: `/v2/api/${process.env.REACT_APP_PATH}/order`,
+            url: `/api/${process.env.REACT_APP_PATH}/order`,
             method: 'post',
             data: {
                 data: {
@@ -74,8 +75,8 @@ function Cart () {
         })
     }
     const applyCoupon = () => {
-        http({
-            url: `/v2/api/${process.env.REACT_APP_PATH}/coupon`,
+        if(code)http({
+            url: `/api/${process.env.REACT_APP_PATH}/coupon`,
             method: 'post',
             data: {data: {code}}
         }).then(response => {
@@ -102,7 +103,7 @@ function Cart () {
         if (isNaN(parseInt(qty)) || parseInt(qty) < 1) return
         else {
             http({
-                url: `/v2/api/${process.env.REACT_APP_PATH}/cart/${id}`,
+                url: `/api/${process.env.REACT_APP_PATH}/cart/${id}`,
                 method: 'put',
                 data: {
                     data: {
@@ -126,7 +127,7 @@ function Cart () {
                 pushMessages({
                     type: 'danger',
                     title: '變更數量失敗',
-                    content: error
+                    content: error.response.data.message
                 })
             })
         }
@@ -230,7 +231,8 @@ function Cart () {
                         </div>
                         <div className="btn-group w-100">
                             <button className="btn btn-secondary"
-                            onClick={applyCoupon}>
+                            onClick={applyCoupon}
+                            disabled={!code}>
                             <i className="bi bi-percent pe-1"></i>
                             套用優惠碼
                         </button>
@@ -246,7 +248,8 @@ function Cart () {
                             <label className="input-group-text" htmlFor="code">輸入優惠碼</label>
                             <input className="form-control" id="code" type="text" value={code} onChange={event => setCode(event.target.value)} />
                             <button className="btn btn-secondary"
-                                onClick={applyCoupon}>
+                                onClick={applyCoupon}
+                                disabled={!code}>
                                 <i className="bi bi-percent pe-1"></i>
                                 套用優惠碼
                             </button>
@@ -337,7 +340,11 @@ function Cart () {
                     </form>
                     <RemoveModal ref={modal} cart={cart} getCarts={getCarts} pushMessages={pushMessages} />
                 </> :
-                <h1 className="text-center">未選購任何商品</h1>}
+                <div className="text-center">
+                    <h1>未選購任何商品</h1>
+                    <Link to="/products" className="btn btn-outline-primary mb-1">前往購物</Link>
+                </div>
+            }
         </div>
     )
 }

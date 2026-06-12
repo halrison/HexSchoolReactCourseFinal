@@ -26,12 +26,12 @@ function CouponModal ({coupon, getCoupons, ref, pushMessages}) {
     })
     const saveCoupon = () => {
         http({
-            url: tempCoupon.id ? `/v2/api/${process.env.REACT_APP_PATH}/admin/coupon/${tempCoupon.id}` : `/v2/api/${process.env.REACT_APP_PATH}/admin/coupon`,
+            url: `/api/${process.env.REACT_APP_PATH}/admin/coupon/${tempCoupon.id ? tempCoupon.id:''}`,
             method: tempCoupon.id ? 'put' : 'post',
             data: {
                 data: {
                     ...getValues(),
-                    is_enabled:getValues('is_enabled')==="0"?0:1,
+                    is_enabled:getValues('is_enabled')?1:0,
                     due_date: Date.parse(getValues('due_date'))
                 }
             }
@@ -131,7 +131,7 @@ function CouponModal ({coupon, getCoupons, ref, pushMessages}) {
                             <p className="invalid-feedback">{errors.due_date?.message}</p>
                         </div>
                         <div className="col-3 mb-2">
-                            <label className="w-100" htmlFor="percent">折扣（%）</label>
+                            <label className="w-100" htmlFor="percent">折扣</label>
                             <input
                                 type="number"
                                 id="percent"
@@ -156,9 +156,9 @@ function CouponModal ({coupon, getCoupons, ref, pushMessages}) {
                             <p className="invalid-feedback">{errors.percent?.message}</p>
                         </div>
                         <div className="col-3 mb-2">
-                            <label className="w-100" htmlFor="is_enabled">是否啟用</label>
+                            <label className="w-100" htmlFor="is_enabled">啟用</label>
                             <input className="form-check-input" type="checkbox" id="is_enabled"
-                                defaultChecked={!!tempCoupon.is_enabled} value={tempCoupon.is_enabled}
+                                defaultChecked={!!tempCoupon.is_enabled} defaultValue={tempCoupon.is_enabled}
                                 {...register('is_enabled')} />
                         </div>
                     </div>
@@ -174,7 +174,7 @@ function CouponModal ({coupon, getCoupons, ref, pushMessages}) {
 function DeleteModal ({coupon, getCoupons, ref, pushMessages}) {
     const deleteCoupon = id => {
         http({
-            url: `/v2/api/${process.env.REACT_APP_PATH}/admin/coupon/${id}`,
+            url: `/api/${process.env.REACT_APP_PATH}/admin/coupon/${id}`,
             method: 'delete'
         }).then(response => {
             if (response.data.success) {
@@ -226,7 +226,7 @@ function Coupon () {
         page => {
             setIsLoading(true)
             http({
-                url: `/v2/api/${process.env.REACT_APP_PATH}/admin/coupons`,
+                url: `/api/${process.env.REACT_APP_PATH}/admin/coupons`,
                 params: {page}
             }).then(response => {
                 if (response.data.success) {
@@ -267,7 +267,7 @@ function Coupon () {
                 </div>
                 <div className="table-responsive-sm overflow-x-hidden mt-2">
                     <table className="table table-striped">
-                        <thead className="sticky-top">
+                        <thead>
                             <tr className="row mx-0">
                                 <th className="col-6 col-lg-2">標題</th>
                                 <th className="col-6 col-lg-3">代碼</th>
@@ -280,12 +280,12 @@ function Coupon () {
                         <tbody>
                             {coupons.map(coupon =>
                                 <tr key={coupon.num} className="row mx-0">
-                                    <td className="col-6 col-lg-3">{coupon.title}</td>
+                                    <td className="col-6 col-lg-2">{coupon.title}</td>
                                     <td className="col-6 col-lg-3">{coupon.code}</td>
                                     <td className="col-6 col-lg-3 text-lg-end">{transDate(coupon.due_date)}</td>
                                     <td className="col-3 col-lg-1 text-lg-end">{coupon.percent}</td>
                                     <td className="col-3 col-lg-1">
-                                        <div className={coupon.is_enabled ? 'text-success' : 'text-muted'}>
+                                        <div className={coupon.is_enabled ? 'text-success' : 'text-danger'}>
                                             {coupon.is_enabled ? '啟' : '停'}用
                                         </div>
                                     </td>

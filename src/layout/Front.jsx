@@ -102,7 +102,7 @@ function Footer () {
             <div className="row">
                 <div className="pt-1">© 2020 LOGO All Rights Reserved.</div>
             </div>
-            <div className="d-flex flex-column flex-md-row justify-content-between align-items-center">
+            <div className="d-flex flex-column justify-content-between align-items-center">
                 <p className="mb-md-0 mt-2">
                     <a href="#" className="mx-3 text-white">
                         <i className="bi bi-facebook" />
@@ -122,18 +122,18 @@ function Footer () {
     )
 }
 function Front () {
-    const {messages, postMessages} = useContext(useToast)
+    const {messages, pushMessages} = useContext(useToast)
     const [carts, setCarts] = useState({})
     const getCarts = useCallback(() => {
-        http(`/v2/api/${process.env.REACT_APP_PATH}/cart`)
+        http(`/api/${process.env.REACT_APP_PATH}/cart`)
             .then(response => {
                 if (response.data.success) setCarts(response.data.data)
                 else setCarts(response.data.messages)
             }).catch(error => {
-                postMessages({type: 'danger', title: error.message})
+                pushMessages({type: 'danger', title: error.message})
             })
     },
-        [postMessages])
+        [pushMessages])
     return (
         <main className="container">
             <div className="position-relative">

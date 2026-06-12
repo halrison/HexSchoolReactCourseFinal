@@ -10,7 +10,7 @@ function PayModal ({getOrders, order, pushMessages, ref}) {
     const watchPayMethod = watch('payMethod')
     const payOrder = () => {
         http({
-            url: `/v2/api/${process.env.REACT_APP_PATH}/pay/${order.id}`,
+            url: `/api/${process.env.REACT_APP_PATH}/pay/${order.id}`,
             method: 'post'
         }).then(response => {
             if (response.data.success) {
@@ -20,7 +20,7 @@ function PayModal ({getOrders, order, pushMessages, ref}) {
                     content: response.data.message
                 })
                 getOrders()
-            } else postMessage({
+            } else pushMessages({
                 type: 'warning',
                 title: '付款失敗',
                 content: response.data.message
@@ -72,9 +72,9 @@ function PayModal ({getOrders, order, pushMessages, ref}) {
                             <div className="row mt-1">
                                 <div className="col">卡號</div>
                                 <div className="col">
-                                    <input className={`form-control ${errors.bank && 'is-invalid'}`}
+                                    <input className={`form-control ${errors.card_no && 'is-invalid'}`}
                                         {...register(
-                                            'bank',
+                                            'card_no',
                                             {
                                                 required: '欄位必填',
                                                 pattern: {
@@ -83,7 +83,7 @@ function PayModal ({getOrders, order, pushMessages, ref}) {
                                                 }
                                             }
                                         )} />
-                                    <span name="bank" className="invalid-feedback">{errors.bank?.message}</span>
+                                    <span name="card_no" className="invalid-feedback">{errors.card_no?.message}</span>
                                 </div>
                             </div>
                             <div className="row mt-1">
@@ -111,7 +111,7 @@ function PayModal ({getOrders, order, pushMessages, ref}) {
                                                 }
                                             }
                                         )} />
-                                    <span name="valid-thru" className="invalid-feedback">{errors.validThru?.message}</span>
+                                    <span name="validThru" className="invalid-feedback">{errors.validThru?.message}</span>
                                 </div>
                             </div>
                             <div className="row mt-1">
@@ -323,7 +323,7 @@ function OrderModal ({order, pushMessages, ref}) {
     useEffect(
         () => {
             setIsLoading(true)
-            http(`/v2/api/${process.env.REACT_APP_PATH}/order/${order.id}`)
+            http(`/api/${process.env.REACT_APP_PATH}/order/${order.id}`)
                 .then(response => {
                     if (response.data.success) setTempOrder(response.data.order)
                     else pushMessages({
@@ -429,7 +429,7 @@ function OrderList () {
         page => {
             setIsLoading(true)
             http({
-                url: `/v2/api/${process.env.REACT_APP_PATH}/orders`,
+                url: `/api/${process.env.REACT_APP_PATH}/orders`,
                 params: {page}
             }).then(response => {
                 if (response.data.success) {
@@ -474,8 +474,8 @@ function OrderList () {
                                     </th>
                                     <th className="col-6 col-md-3 col-lg-2">建立日期</th>
                                     <th className="col-6 col-md-3 col-lg-2">付款日期</th>
-                                    <th className="col-6 col-md-2 col-lg-2 text-lg-end">金額</th>
-                                    <th className="col-6 col-md-3 col-lg-2 text-lg-center">動作</th>
+                                    <th className="col-6 col-md-2 text-end">金額</th>
+                                    <th className="col-6 col-md-3 col-lg-2 text-center">動作</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -487,10 +487,10 @@ function OrderList () {
                                         </td>
                                         <td className="col-6 col-md-3 col-lg-2">{order.create_at ? transDate(order.create_at * 1000) : '-'}</td>
                                         <td className="col-6 col-md-3 col-lg-2">{order.paid_date ? transDate(order.paid_date * 1000) : '尚未付款'}</td>
-                                        <td className="col-6 col-md-2 col-lg-2 text-lg-end">{currency(order.total)}</td>
-                                        <td className="col-6 col-md-3 col-lg-2 text-lg-center">
+                                        <td className="col-6 col-md-2 col-lg-2 text-end">{currency(order.total)}</td>
+                                        <td className="col-6 col-md-3 col-lg-2 text-center">
                                             {order.is_paid ?
-                                                <button className="btn btn-outline-primary w-100" onClick={() => openModal('view', order.id)}>
+                                                <button className="btn btn-sm btn-outline-primary w-100" onClick={() => openModal('view', order.id)}>
                                                     <i className="bi bi-eye me-1"></i>
                                                     檢視
                                                 </button> :
@@ -499,7 +499,7 @@ function OrderList () {
                                                         <i className="bi bi-eye me-1"></i>
                                                         檢視
                                                     </button>
-                                                    <button className="btn btn-outline-info" onClick={() => openModal('pay', order.id)}>
+                                                    <button className="btn btn-sm btn-outline-info" onClick={() => openModal('pay', order.id)}>
                                                         <i className="bi bi-wallet me-1"></i>
                                                         付款
                                                     </button>

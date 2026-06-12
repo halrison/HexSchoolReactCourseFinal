@@ -12,7 +12,7 @@ function ArticleDetail () {
     useEffect(
         () => {
             setIsLoading(true)
-            http(`/v2/api/${process.env.REACT_APP_PATH}/article/${id}`)
+            http(`/api/${process.env.REACT_APP_PATH}/article/${id}`)
                 .then(response => {
                     if (response.data.success) setArticle(response.data.article)
                     else pushMessages({

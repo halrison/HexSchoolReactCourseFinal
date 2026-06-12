@@ -43,26 +43,26 @@ function ArticleList () {
     const tags = articles.flatMap(article => article.tag).filter((article, index, array) => array.indexOf(article) === index)
     const getArticles = useCallback(
         page => {
-        setIsLoading(true)
-        http({
-            url: `/v2/api/${process.env.REACT_APP_PATH}/articles`,
-            params: {page}
-        }).then(response => {
-            if (response.data.success) {
-                setArticles(response.data.articles)
-                setPaginator(response.data.pagination)
-            } else pushMessages({
-                type: 'warning',
-                title: '取得文章列表失敗',
-                content: response.data.messages
-            })
-        }).catch(error => {
-            pushMessages({
-                type: 'danger',
-                title: '取得文章列表發生錯誤',
-                content: error.response.data.messages
-            })
-        }).finally(() => {setIsLoading(false)})
+            setIsLoading(true)
+            http({
+                url: `/api/${process.env.REACT_APP_PATH}/articles`,
+                params: {page}
+            }).then(response => {
+                if (response.data.success) {
+                    setArticles(response.data.articles)
+                    setPaginator(response.data.pagination)
+                } else pushMessages({
+                    type: 'warning',
+                    title: '取得文章列表失敗',
+                    content: response.data.messages
+                })
+            }).catch(error => {
+                pushMessages({
+                    type: 'danger',
+                    title: '取得文章列表發生錯誤',
+                    content: error.response.data.messages
+                })
+            }).finally(() => {setIsLoading(false)})
         },
         [pushMessages]
     )
@@ -86,7 +86,7 @@ function ArticleList () {
                 </nav>
                 <div className="col-sm-9 mt-1">
                     <div className="card-group row">
-                        {filterArticles.filter(article => !['-NjruxEi0mdTiUdzi3aK','-NjruxEi0mdTiUdzi3aK '].includes(article.id)).map(article =>
+                        {filterArticles.map(article =>
                             <div className="col-md-6 col-lg-4 row" key={article.num}>
                                 <ArticleCard article={article} />
                             </div>

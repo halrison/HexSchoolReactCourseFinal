@@ -10,17 +10,12 @@ function ProductList () {
     const [isLoading, setIsLoading] = useState(false)
     const [paginator, setPaginator] = useState({})
     const [products, setProducts] = useState([])
-    const [filteredProducts, setFilteredProducts] = useState([])
     const [selectedCategory, setSelectedCategory] = useState("")
-    const categories = useMemo(
-        () => products.map(product => product.category),
-        [products]
-    )
     const getProducts = useCallback(
         page => {
             setIsLoading(true)
             http({
-                url: `/v2/api/${process.env.REACT_APP_PATH}/products`,
+                url: `/api/${process.env.REACT_APP_PATH}/products`,
                 params: {page}
             }).then(response => {
                 if (response.data.success) {
@@ -41,42 +36,23 @@ function ProductList () {
         },
         [pushMessages]
     )
-    const filterProducts = useCallback(
+    const categories = useMemo(
+        () => products.map(product => product.category),
+        [products]
+    )
+    const filteredProducts = useMemo(
         () => {
             if (selectedCategory === "favorite") {
                 const favoriteList = localStorage.getItem('favorite') ? JSON.parse(localStorage.getItem('favorite')) : []
-                setFilteredProducts(products.filter(product => favoriteList.includes(product.id)))
-            } else {
-                setIsLoading(true)
-                http({
-                    url: `/v2/api/${process.env.REACT_APP_PATH}/products`,
-                    params: {category: selectedCategory}
-                }).then(response => {
-                    if (response.data.success) {
-                        setPaginator(response.data.pagination)
-                        setFilteredProducts(response.data.products)
-                    } else pushMessages({
-                        type: 'danger',
-                        title: '取得產品列表失敗'
-                    })
-                }).catch(error => {
-                    pushMessages({
-                        type: 'danger',
-                        title: '取得產品列表失敗',
-                        content: error
-                    })
-                }).finally(() => {setIsLoading(false)})
-            }
+                return products.filter(product => favoriteList.includes(product.id))
+            }else if(selectedCategory)return products.filter(product=>product.category===selectedCategory)
+            else return products
         },
-        [pushMessages, products, selectedCategory]
+        [products, selectedCategory]
     )
     useEffect(
         () => {getProducts(1)},
         [getProducts]
-    )
-    useEffect(
-        () => {filterProducts()},
-        [filterProducts]
     )
     return isLoading ? <Loading loading={isLoading} /> : (
         <div className="container">

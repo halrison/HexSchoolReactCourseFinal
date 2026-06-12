@@ -118,7 +118,7 @@ function Home () {
     useEffect(
         () => {
             setIsLoading(true)
-            http(`/v2/api/${process.env.REACT_APP_PATH}/articles`)
+            http(`/api/${process.env.REACT_APP_PATH}/articles`)
                 .then(response => {
                     if (response.data.success) setArticles(response.data.articles)
                     else pushMessages({
@@ -137,7 +137,7 @@ function Home () {
     )
     useLayoutEffect(
         () => {
-            http(`/v2/api/${process.env.REACT_APP_PATH}/products/all`)
+            http(`/api/${process.env.REACT_APP_PATH}/products/all`)
                 .then(response => {
                     if (response.data.success) setProducts(response.data.products)
                     else pushMessages({
@@ -174,7 +174,7 @@ function Home () {
             <div className="container">
                 <div className="row mt-2">
                     <h2 className="text-center">熱門商品</h2>
-                    <ProductSwiper products={filterProducts} />
+                    <ProductSwiper products={filterProducts.slice(0, 3)} />
                 </div>
             </div>
             <div className="bg-light container">
